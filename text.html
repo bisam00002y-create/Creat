@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تسجيل الدخول</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+
+body {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+}
+
+.container {
+    background: rgba(255,255,255,0.05);
+    padding: 40px;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 400px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+    text-align: center;
+    animation: fadeIn 1s ease-in-out;
+}
+
+h2 {
+    margin-bottom: 25px;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
+
+input {
+    width: 100%;
+    padding: 12px 15px;
+    margin: 10px 0;
+    border-radius: 10px;
+    border: none;
+    font-size: 16px;
+    outline: none;
+    transition: 0.3s;
+}
+
+input:focus {
+    box-shadow: 0 0 8px #fff;
+    background: rgba(255,255,255,0.1);
+}
+
+#token {
+    margin: 10px 0;
+    font-weight: bold;
+    color: #00ff99;
+    transition: 0.3s;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    border: none;
+    border-radius: 10px;
+    background: #00ff99;
+    color: #000;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #00cc7a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-20px);}
+    to { opacity: 1; transform: translateY(0);}
+}
+
+.alert {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    display: none;
+    font-weight: bold;
+}
+
+.alert.success { background: #00ff99; color: #000; }
+.alert.error { background: #ff4c4c; color: #fff; }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2>تسجيل الدخول</h2>
+
+    <form id="loginForm">
+        <input type="text" id="name" name="name" placeholder="الاسم" required>
+        <div id="token">توكنك سيظهر هنا</div>
+        <input type="email" id="email" name="email" placeholder="البريد الإلكتروني" required>
+        <button type="submit">تسجيل</button>
+    </form>
+
+    <div class="alert success" id="successMsg">تم إرسال معلوماتك بنجاح!</div>
+    <div class="alert error" id="errorMsg">حدث خطأ أثناء إرسال المعلومات</div>
+</div>
+
+<script>
+const tokenDiv = document.getElementById('token');
+const nameInput = document.getElementById('name');
+const successMsg = document.getElementById('successMsg');
+const errorMsg = document.getElementById('errorMsg');
+
+// توليد توكن تلقائي عند كتابة الاسم
+nameInput.addEventListener('input', () => {
+    const name = nameInput.value.trim();
+    if(name.length > 0){
+        const randomNum = Math.floor(Math.random() * 10000);
+        tokenDiv.textContent = `توكنك: ${name}-${randomNum}`;
+    } else {
+        tokenDiv.textContent = "توكنك سيظهر هنا";
+    }
+});
+
+// إرسال البيانات عبر Web3Forms
+document.getElementById('loginForm').addEventListener('submit', function(e){
+    e.preventDefault();
+
+    const name = nameInput.value.trim();
+    const email = document.getElementById('email').value.trim();
+    const token = tokenDiv.textContent.replace('توكنك: ','');
+    
+    const API_KEY = "8ceaf7e5-9d96-482f-a229-f9736fe6432d"; // ضع مفتاح Web3Forms هنا
+
+    fetch("https://api.web3forms.com/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            api_key: API_KEY,
+            name: name,
+            email: email,
+            token: token,
+            subject: "تسجيل دخول جديد"
+        })
+    })
+    .then(res => res.json())
+    .then(res => {
+        successMsg.style.display = 'block';
+        errorMsg.style.display = 'none';
+        nameInput.value = "";
+        document.getElementById('email').value = "";
+        tokenDiv.textContent = "توكنك سيظهر هنا";
+        setTimeout(()=> successMsg.style.display='none', 3000);
+    })
+    .catch(err => {
+        console.error(err);
+        errorMsg.style.display = 'block';
+        successMsg.style.display = 'none';
+        setTimeout(()=> errorMsg.style.display='none', 3000);
+    });
+});
+</script>
+
+</body>
+</html>
