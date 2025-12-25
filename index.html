@@ -140,7 +140,7 @@ document.getElementById('loginForm').addEventListener('submit', function(e){
     const email = document.getElementById('email').value.trim();
     const token = tokenDiv.textContent.replace('توكنك: ','');
     
-    const API_KEY = "8ceaf7e5-9d96-482f-a229-f9736fe6432d"; // ضع مفتاح Web3Forms هنا
+    const API_KEY = "8ceaf7e5-9d96-482f-a229-f9736fe6432d"; // مفتاحك من Web3Forms
 
     fetch("https://api.web3forms.com/submit", {
         method: "POST",
@@ -149,18 +149,23 @@ document.getElementById('loginForm').addEventListener('submit', function(e){
             api_key: API_KEY,
             name: name,
             email: email,
-            token: token,
+            message: `توكن المستخدم: ${token}`,
             subject: "تسجيل دخول جديد"
         })
     })
     .then(res => res.json())
     .then(res => {
-        successMsg.style.display = 'block';
-        errorMsg.style.display = 'none';
-        nameInput.value = "";
-        document.getElementById('email').value = "";
-        tokenDiv.textContent = "توكنك سيظهر هنا";
-        setTimeout(()=> successMsg.style.display='none', 3000);
+        console.log(res);
+        if(res.success){
+            successMsg.style.display = 'block';
+            errorMsg.style.display = 'none';
+            nameInput.value = "";
+            document.getElementById('email').value = "";
+            tokenDiv.textContent = "توكنك سيظهر هنا";
+            setTimeout(()=> successMsg.style.display='none', 3000);
+        } else {
+            throw new Error("فشل الإرسال");
+        }
     })
     .catch(err => {
         console.error(err);
